@@ -83,7 +83,8 @@ function Invoke-ArtifactoryRestApi {
         Accept        = $ContentType
     }
   
-    $webContent = Invoke-WebRequest -Uri $InvokeUri `
+    $webContent = Invoke-WebRequest -UseBasicParsing `
+                                    -Uri $InvokeUri `
                                     -Headers $Headers `
                                     -Method $Method | Select-Object -ExpandProperty Content | ConvertFrom-Json
     
