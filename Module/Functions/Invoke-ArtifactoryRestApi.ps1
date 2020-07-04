@@ -1,12 +1,10 @@
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0.0
 
 .GUID 
 
 .AUTHOR Artsiom Krot
-
-.COPYRIGHT (c) 2020 Artsiom Krot
 
 .PROJECTURI https://github.com/artyom-krot/PS.JfrogArtifactory
 
@@ -30,7 +28,7 @@ function Invoke-ArtifactoryRestApi {
     .SYNOPSIS
         PowerShell script for invoking rest api calls to Jfrog Artifactory.
         
-        Jfrog reference  documentation about used rest api methods: 
+        Jfrog reference documentation about rest api functionality: 
         https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API
 
     .DESCRIPTION
@@ -39,13 +37,10 @@ function Invoke-ArtifactoryRestApi {
     .INPUTS
         -RestApiPath <string[]>
 
-        -Method <[Delete], [Get], [Post], [Put]>
+        -Method <[Get], [Post], [Put], [Delete]>
 
-        -Headers <hashtable{}>
-
-        -Accept <string[]>
+        -ContentType <string[]>
         
-
     .OUTPUTS
         Web response content from Jfrog Artifactory api in JSON format
 
@@ -53,9 +48,9 @@ function Invoke-ArtifactoryRestApi {
         
     
     .EXAMPLE
-        Invoke-ArtifactoryRestApi -RestApiPath "/docker/dockerimagename/dockertag1.2.3" -Method Delete
-
-        Invoke-ArtifactoryRestApi -RestApiPath "/api/storageinfo" -Method Get
+        Invoke-ArtifactoryRestApi -RestApiPath '/api/storageinfo' -Method Get -ContentType 'application/json'    
+    
+        Invoke-ArtifactoryRestApi -RestApiPath '/docker/dockerimagename/dockertag1.2.3' -Method Delete
 
     #>
 
@@ -67,41 +62,30 @@ function Invoke-ArtifactoryRestApi {
         $RestApiPath,
 
         [parameter(Position = 1, Mandatory = $false)]
-        [ValidateSet('Delete', 'Get', 'Post', 'Put')]
+        [ValidateSet('Get', 'Post', 'Put', 'Delete')]
         [string]
         $Method = 'Get',
 
         [parameter(Position = 2, Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [hashtable]
-        $Headers = @{},
-
-        [parameter(Position = 3, Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
         [string]
-        $Accept = 'application/json'
+        $ContentType = 'application/json'
     )
 
-    if ($Headers.ContainsKey('Accept')) {
-        $Headers.Accept = $Accept
-    } 
-    else {
-        $Headers.Add('Accept', $Accept)
+    $artifactoryParameters = Get-ArtifactoryParameters
+
+    $authString = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($artifactoryParameters.userName):$($artifactoryParameters.userToken)"))
+
+    $InvokeUri = "$($artifactoryParameters.serverUri)$RestApiPath"
+
+    $Headers = @{
+        Authorization = "Basic $authString"
+        Accept        = $ContentType
     }
-
-    $artifactory = Get-ArtifactoryParameters
-
-    $authString = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($artifactory.user):$($artifactory.token)"))
+  
+    $webContent = Invoke-WebRequest -Uri $InvokeUri `
+                                    -Headers $Headers `
+                                    -Method $Method | Select-Object -ExpandProperty Content | ConvertFrom-Json
     
-    $invokeParameters = @{
-        Uri     = "$($artifactory.server)$RestApiPath"
-        Method  = $Method
-        Headers = @{
-            Authorization = "Basic $authString"
-            Accept        = 'application/json'
-        }
-    }
-
-    $webResponse = Invoke-WebRequest -UseBasicParsing @invokeParameters | Select-Object -ExpandProperty Content | ConvertFrom-Json
-    return $webResponse
+    return $webContent
 }

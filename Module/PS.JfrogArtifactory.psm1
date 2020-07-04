@@ -1,7 +1,5 @@
 <#
 
-Copyright (c) 2020 Artsiom Krot
-
 Module Name:
 
     PS.JfrogArtifactory
@@ -14,11 +12,12 @@ Description:
 
 # export functions
 . $PSScriptRoot\Functions\Get-ArtifactoryParameters.ps1
+. $PSScriptRoot\Functions\Get-ArtifactoryStorageInfo.ps1
 . $PSScriptRoot\Functions\Get-NotUsedSinceArtifacts.ps1
 . $PSScriptRoot\Functions\Get-NotUsedSinceDockerImages.ps1
 . $PSScriptRoot\Functions\Invoke-ArtifactoryRestApi.ps1
 . $PSScriptRoot\Functions\Remove-JfrogArtifact.ps1
-. $PSScriptRoot\Functions\Search-ArtifactoryParameters.ps1
 . $PSScriptRoot\Functions\Set-ArtifactoryParameters.ps1
+. $PSScriptRoot\Functions\Update-ArtifactoryStorageInfo.ps1
 
 Export-ModuleMember -Function *

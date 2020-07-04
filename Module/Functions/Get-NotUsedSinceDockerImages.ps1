@@ -1,12 +1,10 @@
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0.0
 
 .GUID 
 
 .AUTHOR Artsiom Krot
-
-.COPYRIGHT (c) 2020 Artsiom Krot
 
 .PROJECTURI https://github.com/artyom-krot/PS.JfrogArtifactory
 
@@ -40,7 +38,11 @@ function Get-NotUsedSinceDockerImages {
         -NotUsedSinceInDays <int[]>
 
     .OUTPUTS
-        Information about download statistics for the docker images
+        Information about download statistics for the docker images.
+        Docker image layers are stored as separate artifacts within an "image" folder. 
+        If a layer is already in most Docker clients, it won’t get downloaded often. 
+        So search based on the "manifest.json" file, which is what will be changed only when that specific image/tag are downloaded/used. 
+        If a layer is shared between two different tags and if one of the tag is a candidate for the delete in your case above, then the layer will NOT be deleted in the binary storage since it will be still referenced by the other tag.
 
     .NOTES
         
@@ -64,12 +66,11 @@ function Get-NotUsedSinceDockerImages {
     )
 
     $usageData = Get-NotUsedSinceArtifacts @PSBoundParameters
-       
+    
     $dockerImagesDownloadStatistic = $usageData | Where-Object {$_.uri -like "*/manifest.json" } `
     | ForEach-Object {
 
         $searchPattern = '/api/storage/'
-        
         $dockerImagePath = ($_.uri.Substring($_.uri.IndexOf($searchPattern))).Replace($searchPattern, '').Replace('/manifest.json', '')
 
         [pscustomobject]@{

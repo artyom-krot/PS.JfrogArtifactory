@@ -1,12 +1,10 @@
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0.0
 
 .GUID 
 
 .AUTHOR Artsiom Krot
-
-.COPYRIGHT (c) 2020 Artsiom Krot
 
 .PROJECTURI https://github.com/artyom-krot/PS.JfrogArtifactory
 
@@ -89,7 +87,7 @@ function Remove-JfrogArtifact {
         } 
         catch [System.Net.WebException] {
             $response = $_.Exception.Response
-            $responseMessage =  '[{0}] Failed to remove {1} due to status code {2} ({3}).' -f $MyInvocation.MyCommand.Name, $response.ResponseUri, [int]($response.StatusCode), $response.StatusDescription
+            $responseMessage =  'Failed to remove {0} due to status code {1} ({2}).' -f $response.ResponseUri, [int]($response.StatusCode), $response.StatusDescription
             Write-Error ($responseMessage)
         }
         return $responseMessage

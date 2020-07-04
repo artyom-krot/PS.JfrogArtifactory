@@ -1,12 +1,10 @@
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0.0
 
 .GUID 
 
 .AUTHOR Artsiom Krot
-
-.COPYRIGHT (c) 2020 Artsiom Krot
 
 .PROJECTURI https://github.com/artyom-krot/PS.JfrogArtifactory
 
@@ -19,7 +17,7 @@ Script file name:
 
 .DESCRIPTION
 
-    TThe script is an integral part of PS.JfrogArtifactory solution (https://github.com/artyom-krot/PS.JfrogArtifactory)
+    The script is an integral part of PS.JfrogArtifactory solution (https://github.com/artyom-krot/PS.JfrogArtifactory)
 
     Jfrog ref documentation: https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-ArtifactsNotDownloadedSince
 
@@ -63,13 +61,11 @@ function Get-NotUsedSinceArtifacts {
         $NotUsedSinceInDays
     )
 
-  
+    # Convert required date to Unix Epoch format
     $notUsedSince = [int64]((([datetime]::UtcNow).AddDays(-$NotUsedSinceInDays))-(get-date "1/1/1970")).TotalMilliseconds
 
-    $artifactoryRestApiUri = "/api/search/usage?notUsedSince=$notUsedSince&repos=$Repository"
-
-    $response = Invoke-ArtifactoryRestApi -RestApiPath $artifactoryRestApiUri `
-                                          -Accept '*/*'
+    $response = Invoke-ArtifactoryRestApi -RestApiPath "/api/search/usage?notUsedSince=$notUsedSince&repos=$Repository" `
+                                          -ContentType 'application/json'
     
     return $response.results
 }

@@ -1,12 +1,10 @@
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0.0
 
 .GUID 
 
 .AUTHOR Artsiom Krot
-
-.COPYRIGHT (c) 2020 Artsiom Krot
 
 .PROJECTURI https://github.com/artyom-krot/PS.JfrogArtifactory
 
@@ -36,6 +34,7 @@ function Set-ArtifactoryParameters {
         -artifactoryUser <string[]>
         
         -artifactoryUserToken <string[]>
+
     .OUTPUTS
         Information message
 
@@ -63,23 +62,25 @@ function Set-ArtifactoryParameters {
         [parameter(Position = 3, Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $artifactoryUserToken = (Read-Host -Prompt 'Password' -AsSecureString | Get-PlaintextFromSecureString)
-    )
+        $artifactoryUserToken = (Read-Host -Prompt 'Password' -AsSecureString | Get-PlaintextFromSecureString),
 
+        [parameter(Position = 4, Mandatory = $false)]
+        [switch]
+        $Force
+    )
     
     if ($Force -or $PSCmdlet.ShouldProcess("Set new credentials for artifactoryUrl '$artifactoryUrl' and artifactoryUser '$artifactoryUser'?")) {
-        $script:artifactoryServer     = $artifactoryUrl
+        $script:artifactoryUrl        = $artifactoryUrl
         $script:artifactoryUser       = $artifactoryUser
         $script:artifactoryUserToken  = $artifactoryUserToken
     }
 
     # Establish one-time connection to Jfro Artifactory to validate provided credentials 
-    $validateConnection = Invoke-ArtifactoryRestApi -RestApiPath "/api/storageinfo" -Method Get -ErrorAction SilentlyContinue
+    $testConnection = Invoke-ArtifactoryRestApi -RestApiPath "/api/storageinfo" -Method Get -ErrorAction SilentlyContinue
     
-    if ([string]::IsNullOrEmpty($validateConnection)) {
+    if ([string]::IsNullOrEmpty($testConnection)) {
         Write-Error ("Connection to the artifactory can't be estalished")
         Write-Warning "Validate connectivity or set new credentials for artifactoryUrl '$artifactoryUrl' and artifactoryUser '$artifactoryUser'"
-        
     }
     else {
         Write-Verbose "Connection to the jfrog artifactory '$artifactoryUrl' has been validated successfully."
