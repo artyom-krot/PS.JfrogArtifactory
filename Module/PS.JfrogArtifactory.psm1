@@ -16,6 +16,7 @@ Description:
 . $PSScriptRoot\Functions\Get-NotUsedSinceArtifacts.ps1
 . $PSScriptRoot\Functions\Get-NotUsedSinceDockerImages.ps1
 . $PSScriptRoot\Functions\Invoke-ArtifactoryRestApi.ps1
+. $PSScriptRoot\Functions\Invoke-ArtifactoryTrashCleanup.ps1
 . $PSScriptRoot\Functions\Remove-JfrogArtifact.ps1
 . $PSScriptRoot\Functions\Set-ArtifactoryParameters.ps1
 . $PSScriptRoot\Functions\Update-ArtifactoryStorageInfo.ps1
